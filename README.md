@@ -7,6 +7,7 @@ Respository focused on improving distance transforms-based loss functions by uti
 <details><summary><b>Helpful links</b></summary>
 PyTorch Distance Transforms Repository <br>
 <li> https://github.com/JunMa11/SegWithDistMap
+<li> https://github.com/PatRyg99/HausdorffLoss
 <br>
 <br>
 PyTorch Distance Transforms Paper <br>
