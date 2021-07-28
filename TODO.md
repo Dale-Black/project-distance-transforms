@@ -4,14 +4,19 @@
 	* `dice_loss` Python
 	* `hd_loss` Julia
 	* `hd_loss` Python
-- [ ] Time CPU
+- [ ] Time GPU loss functions
+	* `dice_loss` Julia
+	* `dice_loss` Python
+	* `hd_loss` Julia
+	* `hd_loss` Python
+- [ ] Time CPU DTs
 	* ~~`squared_euclidean_distance_transform` CPU threaded~~
 	* ~~`squared_euclidean_distance_transform` CPU~~
 	* ~~`chamfer_distance_transform`~~
 	* ~~`euclidean_distance_transform` Julia~~
 	* `euclidean_distance_transform` Python
 	* pure `dice_loss`
-- [ ] Time GPU
+- [ ] Time GPU DT
 	-  `squared_euclidean_distance_transform` GPU
 - [ ] Determine dataset(s) to use for training
 	* Use datasets from previous papers
