@@ -1,7 +1,7 @@
 # Roadmap
 
 - [ ] Time GPU
-	-  `squared_euclidean_distance_transform` 
+	-  `squared_euclidean_distance_transform` GPU
 - [ ] Determine dataset(s) to use for training
 	* Use datasets from previous papers
 - [ ] Time step for various DTs
