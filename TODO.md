@@ -1,21 +1,26 @@
 # Roadmap
 - [ ] Time CPU loss functions
-	* `dice_loss` Julia
-	* `dice_loss` Python
-	* `hd_loss` Julia
-	* `hd_loss` Python
+  * Julia
+	* `dice_loss`
+    * `hd_loss`
+  * Python
+	* `dice_loss`
+	* `hd_loss`
 - [ ] Time GPU loss functions
-	* `dice_loss` Julia
-	* `dice_loss` Python
-	* `hd_loss` Julia
-	* `hd_loss` Python
+  * Julia
+	* `dice_loss`
+	* `hd_loss`
+  * Python
+    * `dice_loss`
+	* `hd_loss`
 - [ ] Time CPU DTs
+  * Julia
 	* ~~`squared_euclidean_distance_transform` CPU threaded~~
 	* ~~`squared_euclidean_distance_transform` CPU~~
 	* ~~`chamfer_distance_transform`~~
-	* ~~`euclidean_distance_transform` Julia~~
-	* `euclidean_distance_transform` Python
-	* pure `dice_loss`
+	* ~~`euclidean_distance_transform`~~
+  * Python
+	* `euclidean_distance_transform`
 - [ ] Time GPU DT
 	-  `squared_euclidean_distance_transform` GPU
 - [ ] Determine dataset(s) to use for training
