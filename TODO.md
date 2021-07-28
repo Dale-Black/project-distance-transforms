@@ -1,10 +1,15 @@
 # Roadmap
-
+- [ ] Time CPU loss functions
+	* `dice_loss` Julia
+	* `dice_loss` Python
+	* `hd_loss` Julia
+	* `hd_loss` Python
 - [ ] Time CPU
 	* ~~`squared_euclidean_distance_transform` CPU threaded~~
 	* ~~`squared_euclidean_distance_transform` CPU~~
 	* ~~`chamfer_distance_transform`~~
-	* ~~`euclidean_distance_transform`~~
+	* ~~`euclidean_distance_transform` Julia~~
+	* `euclidean_distance_transform` Python
 	* pure `dice_loss`
 - [ ] Time GPU
 	-  `squared_euclidean_distance_transform` GPU
