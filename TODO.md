@@ -1,5 +1,11 @@
 # Roadmap
 
+- [ ] Time CPU
+	* ~~`squared_euclidean_distance_transform` CPU threaded~~
+	* ~~`squared_euclidean_distance_transform` CPU~~
+	* ~~`chamfer_distance_transform`~~
+	* ~~`euclidean_distance_transform`~~
+	* pure `dice_loss`
 - [ ] Time GPU
 	-  `squared_euclidean_distance_transform` GPU
 - [ ] Determine dataset(s) to use for training
