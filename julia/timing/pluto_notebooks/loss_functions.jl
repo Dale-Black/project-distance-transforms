@@ -109,12 +109,12 @@ md"""
 df = DataFrame(
 	hd_mean = hd_mean,
 	dice_mean = dice_mean,
-	hdGPU_mean = hdGPU_mean,
-	diceGPU_mean = diceGPU_mean,
+	# hdGPU_mean = hdGPU_mean,
+	# diceGPU_mean = diceGPU_mean,
 	hd_std = hd_std,
 	dice_std = dice_std,
-	hdGPU_std = hdGPU_std,
-	diceGPU_std = diceGPU_std
+	# hdGPU_std = hdGPU_std,
+	# diceGPU_std = diceGPU_std
 	)
 
 # ╔═╡ 6d8e381c-4e3a-4926-b691-75b4d522d13c
@@ -131,7 +131,7 @@ path = "/Users/daleblack/Google Drive/dev/julia/project-distance-transforms/juli
 # ╟─61a58dd6-8f00-40cb-b1bc-657d066cc1ff
 # ╠═d35c8aaa-d55e-4771-be0c-ff90bfdc7034
 # ╠═524499d2-b293-4d2f-bc92-c9ec33efa74c
-# ╠═39e44a16-0054-46d2-8af2-11f68c061388
+# ╟─39e44a16-0054-46d2-8af2-11f68c061388
 # ╠═a7f90612-9a98-4239-acd8-235a2d13cf9e
 # ╠═6d8e381c-4e3a-4926-b691-75b4d522d13c
 # ╠═11028f5f-262d-4756-b9ad-219c51c5ff11
