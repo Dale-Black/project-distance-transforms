@@ -118,7 +118,7 @@ df = DataFrame(
 	)
 
 # ╔═╡ 6d8e381c-4e3a-4926-b691-75b4d522d13c
-path = "/Users/daleblack/Google Drive/dev/julia/project-distance-transforms/julia/timing/pluto_notebooks/cpu_dt.csv"
+path = "/Users/daleblack/Google Drive/dev/julia/project-distance-transforms/julia/timing/pluto_notebooks/loss_function.csv"
 
 # ╔═╡ 11028f5f-262d-4756-b9ad-219c51c5ff11
 # CSV.write(path, df)
