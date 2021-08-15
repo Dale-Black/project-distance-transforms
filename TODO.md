@@ -7,7 +7,7 @@
 	* `dice_loss`
 	* `hd_loss`
 - [ ] Time GPU loss functions
-  * Julia (Dale) [notebook(https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/loss_functions.jl)
+  * Julia (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/loss_functions.jl)
 	* ~~`dice_loss`~~
 	* ~~`hd_loss`~~
   * Python (Ashwin)
