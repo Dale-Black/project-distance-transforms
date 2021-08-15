@@ -52,7 +52,7 @@ begin
 	diceGPU_mean = []
 	diceGPU_std = []
 	
-	for n in 1:100:1000
+	for n in 2:100:1000
 		
 		# HD CPU
 		x1 = DistanceTransforms.boolean_indicator(rand([0, 1], n, n))
@@ -69,6 +69,26 @@ begin
 		
 		push!(dice_mean, BenchmarkTools.mean(dice).time)
 		push!(dice_std, BenchmarkTools.std(dice).time)
+		
+		# HD GPU
+		x3 = DistanceTransforms.boolean_indicator(CUDA.rand(n, n))
+		dt3 = CuArray{Float32}(undef, size(x3))
+		v3 = CUDA.ones(Int64, size(x3))
+		z3 = CUDA.zeros(Float32, size(x3) .+ 1)
+		tfm3 = DistanceTransforms.SquaredEuclidean(x3, dt3, v3, z3)
+		x3_dtm = DistanceTransforms.transform!(x3, tfm3)
+		hdGPU = @benchmark hausdorff($x3, $x3, $x3_dtm, $x3_dtm)
+		
+		push!(hdGPU_mean, BenchmarkTools.mean(hdGPU).time)
+		push!(hdGPU_std, BenchmarkTools.std(hdGPU).time)
+		
+		# DICE GPU
+		x4 = rand([0, 1], n, n)
+		x4 = CuArray(x4)
+		diceGPU = @benchmark dice($x4, $x4)
+		
+		push!(diceGPU_mean, BenchmarkTools.mean(diceGPU).time)
+		push!(diceGPU_std, BenchmarkTools.std(diceGPU).time)
 	end
 end
 
@@ -96,8 +116,8 @@ begin
 		ylabel = "Time (ns)"
 		)
 	Plots.scatter!(x_new, dice_mean, label="Dice CPU")
-	# Plots.scatter!(x_new, sedtP_mean, label="parallel squared euclidean DT")
-	# Plots.scatter!(x_new, cdt_mean, label="chamfer DT")
+	Plots.scatter!(x_new, hdGPU_mean, label="Hausdorff GPU")
+	Plots.scatter!(x_new, diceGPU_mean, label="Dice GPU")
 end
 
 # ╔═╡ 39e44a16-0054-46d2-8af2-11f68c061388
@@ -109,19 +129,19 @@ md"""
 df = DataFrame(
 	hd_mean = hd_mean,
 	dice_mean = dice_mean,
-	# hdGPU_mean = hdGPU_mean,
-	# diceGPU_mean = diceGPU_mean,
+	hdGPU_mean = hdGPU_mean,
+	diceGPU_mean = diceGPU_mean,
 	hd_std = hd_std,
 	dice_std = dice_std,
-	# hdGPU_std = hdGPU_std,
-	# diceGPU_std = diceGPU_std
+	hdGPU_std = hdGPU_std,
+	diceGPU_std = diceGPU_std
 	)
 
 # ╔═╡ 6d8e381c-4e3a-4926-b691-75b4d522d13c
-path = "/Users/daleblack/Google Drive/dev/julia/project-distance-transforms/julia/timing/pluto_notebooks/loss_function.csv"
+path = raw"C:\Users\Dale\Google Drive\dev\julia\research\project-distance-transforms\julia\data\loss_functions.csv"
 
 # ╔═╡ 11028f5f-262d-4756-b9ad-219c51c5ff11
-# CSV.write(path, df)
+CSV.write(path, df)
 
 # ╔═╡ Cell order:
 # ╠═10227fe0-fbd6-11eb-3d08-a3d424535e44

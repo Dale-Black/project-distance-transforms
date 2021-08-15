@@ -57,7 +57,7 @@ begin
 	cdt_mean = []
 	cdt_std = []
 	
-	for n in 1:1000:10000
+	for n in 1:100:1000
 		# EDT
 		x1 = Bool.(rand([0, 1], n, n))
 		edt = @benchmark euclidean($x1)
@@ -157,10 +157,12 @@ df = DataFrame(
 	edt_mean = edt_mean,
 	sedt_mean = sedt_mean,
 	sedtP_mean = sedtP_mean,
+	sedtGPU_mean = sedtGPU_mean,
 	cdt_mean = cdt_mean,
 	edt_std = edt_std,
 	sedt_std = sedt_std,
 	sedtP_std = sedtP_std,
+	sedtGPU_std = sedtGPU_std,
 	cdt_std = cdt_std
 	)
 
