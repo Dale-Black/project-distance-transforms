@@ -1,15 +1,15 @@
 # Roadmap
 - [ ] Time CPU loss functions
-  * Julia (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/pluto_notebooks/loss_functions.jl)
+  * Julia (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/loss_functions.jl)
 	* ~~`dice_loss`~~
 	* ~~`hd_loss`~~
   * Python (Ashwin)
 	* `dice_loss`
 	* `hd_loss`
 - [ ] Time GPU loss functions
-  * Julia (Dale)
-	* `dice_loss`
-	* `hd_loss`
+  * Julia (Dale) [notebook(https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/loss_functions.jl)
+	*~~ `dice_loss`~~
+	* ~~`hd_loss`~~
   * Python (Ashwin)
 	* `dice_loss`
 	* `hd_loss`
