@@ -172,6 +172,9 @@ path = raw"C:\Users\Dale\Google Drive\dev\julia\research\project-distance-transf
 # ╔═╡ 879af282-2f61-436a-bc68-6d6f1db6e069
 CSV.write(path, df)
 
+# ╔═╡ 46054078-ddf8-4ea3-af79-e0c242999926
+
+
 # ╔═╡ Cell order:
 # ╠═a2688830-ea64-11eb-3a54-534fc3ee29f6
 # ╠═8ee25991-4258-40e1-b581-3dc85efb0cc3
@@ -185,3 +188,4 @@ CSV.write(path, df)
 # ╠═bafd4bbc-b6a1-458e-a064-5dd940bd897d
 # ╠═cd0f6bce-ab33-47d3-a767-ec9269d4e39e
 # ╠═879af282-2f61-436a-bc68-6d6f1db6e069
+# ╠═46054078-ddf8-4ea3-af79-e0c242999926
