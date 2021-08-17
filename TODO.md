@@ -20,7 +20,7 @@
 	* ~~`chamfer`~~
 	* ~~`euclidean`~~
   * Python (Ashwin)
-	* `euclidean_distance_transform`
+	* `compute_dtm`
 - [x] Time GPU DT (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/dt.jl)
 	-  ~~`squared_euclidean` GPU~~
 - [ ] Time step for various DTs use `time_ns()`
