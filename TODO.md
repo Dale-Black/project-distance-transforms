@@ -23,7 +23,7 @@
 	* `euclidean_distance_transform`
 - [x] Time GPU DT (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/dt.jl)
 	-  ~~`squared_euclidean` GPU~~
-- [ ] Time step for various DTs [use this](https://github.com/ChrisRackauckas/PINN_Quadrature/blob/main/Examples/level_set_num.jl)
+- [ ] Time step for various DTs use `time_ns()`
 	* `squared_euclidean` GPU
 	* `squared_euclidean` CPU threaded
 	* `squared_euclidean` CPU
