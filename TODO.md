@@ -23,7 +23,7 @@
 	* ~~`compute_dtm`~~
 - [x] Time GPU DT (Dale) [notebook](https://github.com/Dale-Black/project-distance-transforms/blob/master/julia/timing/dt.jl)
 	-  ~~`squared_euclidean` GPU~~
-- [ ] Time step for various DTs in Julia: use `time_ns()` since @benchmarks doesn't work properly for training loops
+- [ ] Time step for various DTs in Julia: use `time_ns()` since `@benchmarks` doesn't work properly for training loops
 	* `squared_euclidean` GPU
 	* `squared_euclidean` CPU threaded
 	* `squared_euclidean` CPU
