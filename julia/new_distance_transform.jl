@@ -168,6 +168,8 @@ begin
 end
 
 # ╔═╡ 43556a83-fac3-444f-9bfa-96a3b9d9bf8e
+# ╠═╡ disabled = true
+#=╠═╡
 begin
 	function DT1ForDT2(f; output=zeros(length(f)), pointerA=1, pointerB=1)
 		#assume length(f)>0
@@ -239,6 +241,7 @@ begin
 		return output
 	end
 end
+  ╠═╡ =#
 
 # ╔═╡ 33cf18e1-4751-44fc-8c2d-eafaeb21aa44
 DT1WenboJune16(boolean_indicator([0 1 1 0 0 0 0 1 1 0 0 0 1 0]))
@@ -303,6 +306,72 @@ x1 = [
 		0 0 0 0 0 0 0 0 0 0 0
 		]
 
+# ╔═╡ 535c4318-d29e-4640-9105-66b16d13bf88
+# june 20 new implementation
+function DT2VertialJune20(f; output=zeros(length(f)), pointerA=1)
+	while (pointerA<=length(f))
+		output[pointerA]=f[pointerA]
+		if(f[pointerA] > 1)
+			if (length(f) - pointerA <= pointerA - 1)
+				temp = 1
+				while (output[pointerA]>1 && temp <= length(f) - pointerA)
+					if (f[pointerA+temp]<output[pointerA])
+						output[pointerA]=min(output[pointerA], f[pointerA+temp]+temp^2)
+					end
+					if (f[pointerA-temp]<output[pointerA])
+						output[pointerA]=min(output[pointerA], f[pointerA-temp]+temp^2)
+					end
+					temp = temp + 1
+				end
+				if(f[pointerA] > 1)
+					while (output[pointerA]>1 && temp <= pointerA - 1)
+						if (f[pointerA-temp]<output[pointerA])
+							output[pointerA]=min(output[pointerA], f[pointerA-temp]+temp^2)
+						end
+						temp = temp + 1
+					end
+				end
+			else
+				temp = 1
+				while (output[pointerA]>1 && temp <= pointerA - 1)
+					if (f[pointerA+temp]<output[pointerA])
+						output[pointerA]=min(output[pointerA], f[pointerA+temp]+temp^2)
+					end
+					if (f[pointerA-temp]<output[pointerA])
+						output[pointerA]=min(output[pointerA], f[pointerA-temp]+temp^2)
+					end
+					temp = temp + 1
+				end
+				if(f[pointerA] > 1)
+					while (output[pointerA]>1 && temp <= length(f) - pointerA)
+						if (f[pointerA+temp]<output[pointerA])
+							output[pointerA]=min(output[pointerA], f[pointerA+temp]+temp^2)
+						end
+						temp = temp + 1
+					end
+				end
+			end
+		end
+		pointerA=pointerA+1
+	end
+	return output
+end
+
+# ╔═╡ 2f0c4df4-509e-4b39-b194-d16b8ddee85d
+# ╠═╡ disabled = true
+#=╠═╡
+# june 20 new implementation
+begin 
+	function DT2VertialJune20Ver2(f; output=zeros(length(f)), pointerA=1, pointerB=1)
+		localMin=min(f)
+		while (pointerB<=length(f))
+			pointerB=pointerB+1
+		end
+		return output
+	end
+end
+  ╠═╡ =#
+
 # ╔═╡ 46863913-57e1-47cf-86b3-1933c9e45bc7
 img = [
 	 0 1 1 1 0 0 0 1 1
@@ -327,7 +396,7 @@ img = [
 # 	 1.0e10  0.0     0.0     0.0     1.0e10  1.0e10  1.0e10  1.0e10  0.0
 # ]
 
-# ╔═╡ b3ba99a1-cbc9-484f-93a5-7a235905cbf8
+# ╔═╡ 434fd1bf-475e-4081-82d8-336a1ba15537
 function DT20(img; D=zeros(size(img)))
 	for i = 1:size(img, 1)
 	    D[i, :] = DT1WenboJune16(img[i, :])
@@ -335,26 +404,47 @@ function DT20(img; D=zeros(size(img)))
 	return D
 end
 
+# ╔═╡ b3ba99a1-cbc9-484f-93a5-7a235905cbf8
+function DT2WenboJune20(img; D=zeros(size(img)), pointerA=1, pointerB=1)
+	# This is a worst case = O(n^3) implementation
+	for i = 1:size(img, 1)
+	    D[i, :] = DT1WenboJune16(img[i, :]; output=D[i, :], pointerA=pointerA, pointerB=pointerB) 
+	end
+	# june 20 new implementation
+	for j = 1:size(img, 2)
+	    D[:, j] = DT2VertialJune20(D[:, j]; output=D[:, j], pointerA=pointerA) 
+	end
+	return D
+end
+
 # ╔═╡ 2d7da285-7078-4567-8cdd-a8cefd737f57
 function DT2(img; D=zeros(size(img)))
 	for i = 1:size(img, 1)
-	    D[i, :] = DT1WenboJune16(img[i, :])
+	    D[i, :] = DT1(img[i, :])
 	end
 	for j = 1:size(img, 2)
-	    D[:, j] = DT1ForDT2(D[:, j])
+	    D[:, j] = DT1(D[:, j])
 	end
 	return D
 end
 
 # ╔═╡ c7129d90-0d23-4798-8e0f-5eef0b017533
+#=╠═╡
 function DT22(img; D=zeros(size(img)))
 	D = mapslices(DT1WenboJune16, img, dims = 2)
     D = mapslices(DT1ForDT2, D, dims = 1)
 	return D
 end
+  ╠═╡ =#
+
+# ╔═╡ 87433f8e-e32a-467c-9342-eb005f255ad6
+DT20(boolean_indicator(x1))
 
 # ╔═╡ d751a3f7-caea-4d76-8565-3da6757bd8f1
-DT20(boolean_indicator(x1))
+DT2WenboJune20(boolean_indicator(x1))
+
+# ╔═╡ 1747264a-57ad-4d82-a883-2087b978a024
+DT2WenboJune20(boolean_indicator(img))
 
 # ╔═╡ f7402111-bf79-476e-8504-689fed5a08ec
 DT2(boolean_indicator(x1))
@@ -374,18 +464,131 @@ DT2(boolean_indicator(img2))
 d0 = DT2(boolean_indicator(img))
 
 # ╔═╡ a60641bc-cfc9-4963-a363-f07387bbc879
+#=╠═╡
 d2 = DT22(boolean_indicator(img))
+  ╠═╡ =#
+
+# ╔═╡ e30cc09d-4cfa-4321-b53b-a05b1c764051
+begin
+	f3=boolean_indicator(img);
+	argf31, argf32, argf33 = zeros(size(f3)), 1, 1;
+end
 
 # ╔═╡ 8a5666f7-ee15-4f8c-847f-9fb998a89c7e
-# @benchmark DT21($img)
+@benchmark DT2($f3; D=$argf31)
 
 # ╔═╡ ef8cde04-6e7c-4b2a-864b-e3fee501d6a3
-# @benchmark DT22($img)
+@benchmark DT2WenboJune20($f3; D=$argf31, pointerA=$argf32, pointerB=$argf33)
+
+
+# ╔═╡ 7485d191-d0a1-48e1-8e0e-696b23b0228c
+# ╠═╡ disabled = true
+#=╠═╡
+
+  ╠═╡ =#
+
+# ╔═╡ ef33a568-ffbd-4484-b425-15d96af24853
+# ╠═╡ disabled = true
+#=╠═╡
+@benchmark DT2VertialJune20($boolean_indicator($f1); output=$arg1, pointerA=$arg2)
+  ╠═╡ =#
 
 # ╔═╡ 71072c67-6584-4fc7-ad4d-b3d362333562
 md"""
 ## 3D
 """
+
+# ╔═╡ f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
+function DT3WenboJune20(f; D=zeros(size(f)), pointerA=1, pointerB=1)
+	for i = 1:size(f, 3)
+	    D[:, :, i] = DT2WenboJune20(f[:, :, i]; D=D[:, :, i], pointerA=pointerA, pointerB=pointerB)
+	end
+	for i = 1:size(f, 1)
+		for j = 1:size(f, 2)
+	    	D[i, j, :] = DT2VertialJune20(D[i, j, :]; output=D[i, j, :], pointerA=pointerA)
+		end
+	end
+	return D
+end
+
+# ╔═╡ aeabedd0-5719-46f2-9715-7b21d8e5bf3d
+begin
+	container=[]
+	vol1 = [
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+]
+	vol2 = [
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+]
+	vol3 = [
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 1 0 0 0 1 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+]
+	vol4 = [
+	 0 0 0 0 0 0 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 1 0 0 0 1 0 0
+	 0 1 0 0 0 0 0 1 0
+	 0 0 1 0 0 0 1 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 0 0 0 0 0 0
+]
+	vol5 = [
+	 0 0 0 0 1 0 0 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 1 0 0 0 1 0 0
+	 0 1 0 0 0 0 0 1 0
+	 1 0 0 0 0 0 0 0 1
+	 0 1 0 0 0 0 0 1 0
+	 0 0 1 0 0 0 1 0 0
+	 0 0 0 1 0 1 0 0 0
+	 0 0 0 0 1 0 0 0 0
+]
+	#level 1
+	push!(container, vol1)
+	#level 2
+	push!(container, vol2)
+	#level 3
+	push!(container, vol3)
+	#level 4
+	push!(container, vol4)
+	#level 5
+	push!(container, vol5)
+	#level 6
+	push!(container, vol4)
+	#level 7
+	push!(container, vol3)
+	#level 8
+	push!(container, vol2)
+	#level 9
+	push!(container, vol1)
+	test_vol1 = cat(container..., dims=3)
+end;
 
 # ╔═╡ 740b8c8a-9551-4643-b8c9-aa09b9bd9ae7
 # function DT3(vol)
@@ -395,30 +598,55 @@ md"""
 # end
 
 # ╔═╡ 0fe6bcfc-f05b-4e98-a0a1-e2652657e46d
-# begin
-# 	img_inv = @. ifelse(img == 0, 1e10, 0)
-# 	vol = cat(img, img_inv, dims=3)
-# 	container = []
-# 	for i in 1:10
-# 		push!(container, vol)
-# 	end
-# 	vol_new = cat(container..., dims=3)
-# end;
+begin
+	img_inv = @. ifelse(img == 0, 1, 0)
+	vol = cat(img, img_inv, dims=3)
+	container2 = []
+	for i in 1:10
+		push!(container2, vol)
+	end
+	vol_new = cat(container2..., dims=3)
+end;
+
+# ╔═╡ 2d37995e-c262-43ab-b479-1901e019e9d0
+boolean_indicator(test_vol1)
 
 # ╔═╡ ac8ed96d-bf48-4a2e-81f0-ae612024177c
-# @bind c PlutoUI.Slider(1:size(vol_new, 3), default=1, show_value=true)
+@bind c PlutoUI.Slider(1:size(test_vol1, 3), default=1, show_value=true)
 
 # ╔═╡ fad6db76-5bd3-4350-8180-eb9735f6a749
-# heatmap(vol_new[:, :, c])
+heatmap(test_vol1[:, :, c])
 
 # ╔═╡ 33ce5963-4fb7-44e8-9206-d4f6d828db97
-# dt_vol_3d = DT3(vol_new)
+dt_vol_3d = DT3WenboJune20(boolean_indicator(vol_new))
+# dt_vol_3d = DT3WenboJune20(boolean_indicator(test_vol1))
 
 # ╔═╡ ab59045a-448e-4d09-b779-be372b7b9793
-# @bind b PlutoUI.Slider(1:size(dt_vol_3d, 3), default=1, show_value=true)
+@bind b PlutoUI.Slider(1:size(dt_vol_3d, 3), default=1, show_value=true)
 
 # ╔═╡ 66c52751-0b74-4204-9eba-71d577c0ecd0
-# heatmap(dt_vol_3d[:, :, b])
+heatmap(dt_vol_3d[:, :, b])
+
+# ╔═╡ f5ddd208-6f6d-4fdc-9fb9-97f1d5ca1ce5
+begin
+	f2=[0 0 1 0 0 0 1 0 0]
+	argf21, argf22, argf23 = zeros(length(f2)), 1, 1
+	@benchmark DT1WenboJune16($boolean_indicator($f2); output=$argf21, pointerA=$argf22, pointerB=$argf23) 
+end
+
+# ╔═╡ 49b8f130-c7b5-402b-9b56-5aa1d67198a0
+begin
+	f4=boolean_indicator(vol5);
+	argf41, argf42, argf43 = zeros(size(f4)), 1, 1;
+	@benchmark DT2WenboJune20($f4; D=$argf41, pointerA=$argf42, pointerB=$argf43)
+end
+
+# ╔═╡ a590e6c0-2f97-4866-bd0d-08b7758a347c
+begin
+	f5=boolean_indicator(test_vol1);
+	argf51, argf52, argf53 = zeros(size(f5)), 1, 1;
+	@benchmark DT3WenboJune20($f5; D=$argf51, pointerA=$argf52, pointerB=$argf53)
+end
 
 # ╔═╡ b4d5b33a-4126-46d4-9128-ce778ccbfed8
 md"""
@@ -467,27 +695,41 @@ In 3D, if you stack 2D arrays along with their inverses in a repeating way, the 
 # ╠═7a1a556f-fa9e-4cec-88e8-5c74c10e0c4e
 # ╟─2d02a6fd-7a23-4790-b8da-7b7150482a85
 # ╠═29cb3c08-a702-4564-ad41-664f312913b0
+# ╠═535c4318-d29e-4640-9105-66b16d13bf88
+# ╠═2f0c4df4-509e-4b39-b194-d16b8ddee85d
 # ╠═46863913-57e1-47cf-86b3-1933c9e45bc7
 # ╠═e3851249-ddf2-46e4-8805-d01da6ba0d4b
+# ╠═434fd1bf-475e-4081-82d8-336a1ba15537
 # ╠═b3ba99a1-cbc9-484f-93a5-7a235905cbf8
 # ╠═2d7da285-7078-4567-8cdd-a8cefd737f57
 # ╠═c7129d90-0d23-4798-8e0f-5eef0b017533
+# ╠═87433f8e-e32a-467c-9342-eb005f255ad6
 # ╠═d751a3f7-caea-4d76-8565-3da6757bd8f1
+# ╠═1747264a-57ad-4d82-a883-2087b978a024
 # ╠═f7402111-bf79-476e-8504-689fed5a08ec
 # ╠═ad3fff84-0c1f-491c-8dd6-95069f4b6e02
 # ╠═74ce6426-6c76-43f7-ab43-fcbb5f1015de
 # ╠═538619d7-8c4d-47c4-bf5a-88165ea26ac4
 # ╠═a60641bc-cfc9-4963-a363-f07387bbc879
+# ╠═e30cc09d-4cfa-4321-b53b-a05b1c764051
 # ╠═8a5666f7-ee15-4f8c-847f-9fb998a89c7e
 # ╠═ef8cde04-6e7c-4b2a-864b-e3fee501d6a3
+# ╠═7485d191-d0a1-48e1-8e0e-696b23b0228c
+# ╠═ef33a568-ffbd-4484-b425-15d96af24853
 # ╟─71072c67-6584-4fc7-ad4d-b3d362333562
+# ╠═f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
+# ╟─aeabedd0-5719-46f2-9715-7b21d8e5bf3d
 # ╠═740b8c8a-9551-4643-b8c9-aa09b9bd9ae7
 # ╠═0fe6bcfc-f05b-4e98-a0a1-e2652657e46d
+# ╠═2d37995e-c262-43ab-b479-1901e019e9d0
 # ╠═ac8ed96d-bf48-4a2e-81f0-ae612024177c
 # ╠═fad6db76-5bd3-4350-8180-eb9735f6a749
 # ╠═33ce5963-4fb7-44e8-9206-d4f6d828db97
 # ╠═ab59045a-448e-4d09-b779-be372b7b9793
 # ╠═66c52751-0b74-4204-9eba-71d577c0ecd0
+# ╠═f5ddd208-6f6d-4fdc-9fb9-97f1d5ca1ce5
+# ╠═49b8f130-c7b5-402b-9b56-5aa1d67198a0
+# ╠═a590e6c0-2f97-4866-bd0d-08b7758a347c
 # ╟─b4d5b33a-4126-46d4-9128-ce778ccbfed8
 # ╟─8e8512c5-e547-4a67-9ec0-936bbe6e58ad
 # ╠═65bcf599-e7f2-49dc-a0ec-b977ded03efe
