@@ -142,7 +142,7 @@ md"""
 function transform(vol::AbstractArray, tfm::SquaredEuclidean;
 output=zeros(size(vol)), v=ones(Int32, size(vol)), z=ones(size(vol)))
 	for k in axes(vol, 3)
-	    output[:, :, k] = transform(boolean_indicator(vol[:, :, k]), tfm; output=output[:, :, k], v=v[:, :, k], z=z[:, :, k])
+	    output[:, :, k] = transform(vol[:, :, k], tfm; output=output[:, :, k], v=v[:, :, k], z=z[:, :, k])
 	end
 	for i in axes(vol, 1)
 		for j in axes(vol, 2)

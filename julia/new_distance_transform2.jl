@@ -4,16 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
 # ╔═╡ aec0d43c-16e0-4092-b81e-6dddbe41d3db
 # ╠═╡ show_logs = false
 begin
@@ -198,7 +188,7 @@ md"""
 # ╔═╡ f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
 function transform(f::AbstractArray, tfm::Wenbo; output=zeros(size(f)), pointerA=1, pointerB=1)
 	for i in axes(f, 3)
-	    output[:, :, i] = transform(f[:, :, i], Wenbo(); output=output[:, :, i], pointerA=pointerA, pointerB=pointerB)
+	    output[:, :, k] = transform(f[:, :, k], Wenbo(); output=output[:, :, k], pointerA=pointerA, pointerB=pointerB)
 	end
 	for i in axes(f, 1)
 		for j in axes(f, 2)
@@ -391,21 +381,6 @@ begin
 	test_vol1 = cat(container..., dims=3)
 end;
 
-# ╔═╡ ac8ed96d-bf48-4a2e-81f0-ae612024177c
-@bind c PlutoUI.Slider(1:size(test_vol1, 3), default=1, show_value=true)
-
-# ╔═╡ fad6db76-5bd3-4350-8180-eb9735f6a749
-# heatmap(test_vol1[:, :, c])
-
-# ╔═╡ 33ce5963-4fb7-44e8-9206-d4f6d828db97
-# dt_vol_3d = DT3(boolean_indicator(test_vol1))
-
-# ╔═╡ ab59045a-448e-4d09-b779-be372b7b9793
-# @bind b PlutoUI.Slider(1:size(dt_vol_3d, 3), default=1, show_value=true)
-
-# ╔═╡ 66c52751-0b74-4204-9eba-71d577c0ecd0
-# heatmap(dt_vol_3d[:, :, b])
-
 # ╔═╡ b4d5b33a-4126-46d4-9128-ce778ccbfed8
 md"""
 ### Tests
@@ -530,11 +505,6 @@ end
 # ╟─71072c67-6584-4fc7-ad4d-b3d362333562
 # ╠═f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
 # ╟─aeabedd0-5719-46f2-9715-7b21d8e5bf3d
-# ╟─ac8ed96d-bf48-4a2e-81f0-ae612024177c
-# ╠═fad6db76-5bd3-4350-8180-eb9735f6a749
-# ╠═33ce5963-4fb7-44e8-9206-d4f6d828db97
-# ╠═ab59045a-448e-4d09-b779-be372b7b9793
-# ╠═66c52751-0b74-4204-9eba-71d577c0ecd0
 # ╟─b4d5b33a-4126-46d4-9128-ce778ccbfed8
 # ╟─8e8512c5-e547-4a67-9ec0-936bbe6e58ad
 # ╠═c3db3faf-4c72-43c9-a0ee-0f65d1b188ef
