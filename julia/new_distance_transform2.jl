@@ -23,20 +23,14 @@ begin
 		Pkg.Registry.update()
 		Pkg.add("PlutoUI")
 		Pkg.add("CairoMakie")
-		Pkg.add("Luxor")
 		Pkg.add("BenchmarkTools")
-		Pkg.add("ColorTypes")
-		Pkg.add(url="https://github.com/Dale-Black/ActiveContours.jl")
 		Pkg.add(url="https://github.com/Dale-Black/DistanceTransforms.jl")
 	end
 	
 	using PlutoUI
 	using CairoMakie
 	using LinearAlgebra
-	using Luxor
 	using BenchmarkTools
-	using ColorTypes
-	using ActiveContours
 	using DistanceTransforms
 end
 

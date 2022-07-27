@@ -13,20 +13,14 @@ begin
 		Pkg.Registry.update()
 		Pkg.add("PlutoUI")
 		Pkg.add("CairoMakie")
-		Pkg.add("Luxor")
 		Pkg.add("BenchmarkTools")
-		Pkg.add("ColorTypes")
-		Pkg.add(url="https://github.com/Dale-Black/ActiveContours.jl")
 		Pkg.add(url="https://github.com/Dale-Black/DistanceTransforms.jl")
 	end
 	
 	using PlutoUI
 	using CairoMakie
 	using LinearAlgebra
-	using Luxor
 	using BenchmarkTools
-	using ColorTypes
-	using ActiveContours
 	using DistanceTransforms
 end
 
@@ -87,10 +81,10 @@ md"""
 # ╔═╡ c4011956-c903-4191-b1a2-a3315c05c761
 function transform(img::AbstractMatrix, tfm::SquaredEuclidean; output=zeros(size(img)), v=ones(Int32, size(img)), z=ones(size(img)))
 	for i in axes(img, 1)
-	    output[i, :] = transform(img[i, :], tfm; output=output[i,:], z=z[i,:], v=v[i,:])
+	    output[i, :] = transform(img[i, :], tfm; output=output[i,:], v=v[i,:], z=z[i,:])
 	end
 	for j in axes(img, 2)
-	    output[:, j] = transform(output[:, j], tfm; output=output[:,j], z=z[:,j], v=v[:,j])
+	    output[:, j] = transform(output[:, j], tfm; output=output[:,j], v=v[:,j], z=z[:,j])
 	end
 	return output
 end
@@ -347,6 +341,105 @@ begin
 	answer = cat(container_a..., dims=3)
 end
 
+# ╔═╡ 3e1121c9-1640-4e89-8e8f-661d0f8f706e
+md"""
+## Attempt Remove Allocations
+"""
+
+# ╔═╡ d8961a71-dd95-4fb2-8a4b-ca5afbfcf260
+md"""
+### 2D
+"""
+
+# ╔═╡ 82b01748-ca0a-45da-b305-f9833a9d773a
+function transform!(img::AbstractMatrix, tfm::SquaredEuclidean; output=zeros(size(img)), v=ones(Int32, size(img)), z=ones(size(img)))
+	for i in axes(img, 1)
+		@views transform(img[i, :], tfm; output=output[i,:], v=fill!(v[i,:], 1), z=fill!(z[i,:], 1))
+	end
+	for j in axes(img, 2)
+		@views transform(output[:, j], tfm; output=output[:,j], v=fill!(v[:,j], 1), z=fill!(z[:,j], 1))
+	end
+	return output
+end
+
+# ╔═╡ d12a9fdf-dcd7-4791-b2f3-33b0a8ea3c04
+let
+	img = [
+		0 1 1 1 0 0 0 1 1
+		1 1 1 1 1 0 0 0 1
+		1 0 0 0 1 0 0 1 1
+		1 0 0 0 1 0 1 1 0
+		1 0 0 0 1 1 0 1 0
+		1 1 1 1 1 0 0 1 0
+		0 1 1 1 0 0 0 0 1
+	]
+	output, v, z = zeros(size(img)), ones(Int32, size(img)), ones(size(img))
+	tfm = SquaredEuclidean()
+	test = transform!(boolean_indicator(img), tfm; output=output, v=v, z=z)
+end
+
+# ╔═╡ c6d8d3d4-d324-44a3-afdb-e74120e7a29e
+let
+	img = [
+		0 1 1 1 0 0 0 1 1
+		1 1 1 1 1 0 0 0 1
+		1 0 0 0 1 0 0 1 1
+		1 0 0 0 1 0 1 1 0
+		1 0 0 0 1 1 0 1 0
+		1 1 1 1 1 0 0 1 0
+		0 1 1 1 0 0 0 0 1
+	]
+	output, v, z = zeros(size(img)), ones(Int32, size(img)), ones(size(img))
+	tfm = SquaredEuclidean()
+	@benchmark transform!($boolean_indicator($img), $tfm; output=$output, v=$v, z=$z)
+end
+
+# ╔═╡ 8a9f34af-21ad-4aaa-a068-c790d30512e1
+md"""
+### 3D
+"""
+
+# ╔═╡ 88fd35f6-2a7b-49c8-8b0b-05a6d19f704a
+# function transform!(vol::AbstractArray, tfm::SquaredEuclidean;
+# output=zeros(size(vol)), v=ones(Int32, size(vol)), z=ones(size(vol)))
+# 	for k in axes(vol, 3)
+# 	    @views transform!(boolean_indicator(vol[:, :, k]), tfm; output=output[:, :, k], v=fill!(v[:, :, k], 1), z=fill!(z[:, :, k], 1))
+# 	end
+# 	for i in axes(vol, 1)
+# 		for j in axes(vol, 2)
+# 	    	@views transform(output[i, j, :], tfm; output=output[i, j, :], v=v[i, j, :], z=z[i, j, :])
+# 		end
+# 	end
+# 	return output
+# end
+
+# ╔═╡ 7563048a-450c-485d-b7e2-3ea5921310a7
+# let
+# 	img = [
+# 		0 0 0 0 0 0 0 0 0 0 0
+# 		0 0 0 0 0 0 0 0 0 0 0
+# 		0 0 0 0 0 0 0 0	0 0 0
+# 		0 0 0 1 1 1 0 0 0 0 0
+# 		0 0 1 0 0 1 0 0 0 0 0
+# 		0 0 1 0 0 1 1 1 0 0 0
+# 		0 0 1 0 0 0 0 1 0 0 0
+# 		0 0 1 0 0 0 0 1 0 0 0
+# 		0 0 0 1 1 1 1 0 0 0 0	
+# 		0 0 0 0 0 0 0 0 0 0 0	
+# 		0 0 0 0 0 0 0 0 0 0 0
+# 	]
+# 	img_inv = @. ifelse(img == 0, 1, 0)
+# 	vol = cat(img, img_inv, dims=3)
+# 	container2 = []
+# 	for i in 1:10
+# 		push!(container2, vol)
+# 	end
+# 	vol_inv = cat(container2..., dims=3)
+# 	output, v, z = zeros(size(vol_inv)), ones(Int32, size(vol_inv)), ones(size(vol_inv))
+# 	tfm = SquaredEuclidean()
+# 	test = transform!(boolean_indicator(vol_inv), tfm; output=output, v=v, z=z)
+# end
+
 # ╔═╡ Cell order:
 # ╠═5c271c90-0d29-11ed-0f2f-5d1c923a6a3d
 # ╠═d5c043ae-3f29-4209-abb5-23fa65884a7c
@@ -375,3 +468,11 @@ end
 # ╠═53e2854f-c805-46ad-a133-7b6988eab426
 # ╠═5d309f7a-3805-416d-b1b1-d7f9c0d40eac
 # ╠═54bbefa8-cbc5-4c3c-a8aa-e54d603b552e
+# ╟─3e1121c9-1640-4e89-8e8f-661d0f8f706e
+# ╟─d8961a71-dd95-4fb2-8a4b-ca5afbfcf260
+# ╠═82b01748-ca0a-45da-b305-f9833a9d773a
+# ╠═d12a9fdf-dcd7-4791-b2f3-33b0a8ea3c04
+# ╠═c6d8d3d4-d324-44a3-afdb-e74120e7a29e
+# ╟─8a9f34af-21ad-4aaa-a068-c790d30512e1
+# ╠═88fd35f6-2a7b-49c8-8b0b-05a6d19f704a
+# ╠═7563048a-450c-485d-b7e2-3ea5921310a7
