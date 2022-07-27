@@ -166,7 +166,7 @@ end
 function transform(img::AbstractMatrix, tfm::Wenbo; output=zeros(size(img)), pointerA=1, pointerB=1)
 	# This is a worst case = O(n^3) implementation
 	for i in axes(img, 1)
-	    output[i, :] = transform(img[i, :], Wenbo(); output=output[i, :], pointerA=pointerA, pointerB=pointerB) 
+	    output[i, :] = transform(img[i, :], tfm; output=output[i, :], pointerA=pointerA, pointerB=pointerB) 
 	end
 
 	for j in axes(img, 2)
@@ -187,8 +187,8 @@ md"""
 
 # ╔═╡ f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
 function transform(f::AbstractArray, tfm::Wenbo; output=zeros(size(f)), pointerA=1, pointerB=1)
-	for i in axes(f, 3)
-	    output[:, :, k] = transform(f[:, :, k], Wenbo(); output=output[:, :, k], pointerA=pointerA, pointerB=pointerB)
+	for k in axes(f, 3)
+	    output[:, :, k] = transform(f[:, :, k], tfm; output=output[:, :, k], pointerA=pointerA, pointerB=pointerB)
 	end
 	for i in axes(f, 1)
 		for j in axes(f, 2)

@@ -89,49 +89,10 @@ function transform(img::AbstractMatrix, tfm::SquaredEuclidean; output=zeros(size
 	return output
 end
 
-# ╔═╡ 15e1cb37-7717-425c-8028-2375998f491f
-# function DT2(img, tfm::SquaredEuclidean; output=zeros(size(img)), v=ones(Int32, size(img)), z=ones(size(img)))
-# 	output = mapslices(x->transform(x, tfm; output=output, v=v, z=z), img, dims = 1)
-#     output = mapslices(x->transform(x, tfm; output=output, v=z, z=z), output, dims = 2)
-# 	return output
-# end
-
 # ╔═╡ 1d0dd515-a341-4f22-9b64-e671534d3167
 md"""
 ### Tests
 """
-
-# ╔═╡ 3a8c65ab-fe56-4679-b25e-cf115829e59d
-# let
-# 	img = [
-# 		0 1 1 1 0 0 0 1 1
-# 		1 1 1 1 1 0 0 0 1
-# 		1 0 0 0 1 0 0 1 1
-# 		1 0 0 0 1 0 1 1 0
-# 		1 0 0 0 1 1 0 1 0
-# 		1 1 1 1 1 0 0 1 0
-# 		0 1 1 1 0 0 0 0 1
-# 	]
-# 	output = zeros(size(img))
-# 	tfm = SquaredEuclidean()
-# 	test = DT2(boolean_indicator(img), tfm; output=output)
-# end
-
-# ╔═╡ ab548a68-e5bc-4f28-a7a9-b5840a056fe8
-# let
-# 	img = [
-# 		0 1 1 1 0 0 0 1 1
-# 		1 1 1 1 1 0 0 0 1
-# 		1 0 0 0 1 0 0 1 1
-# 		1 0 0 0 1 0 1 1 0
-# 		1 0 0 0 1 1 0 1 0
-# 		1 1 1 1 1 0 0 1 0
-# 		0 1 1 1 0 0 0 0 1
-# 	]
-# 	output = zeros(size(img))
-# 	tfm = SquaredEuclidean()
-# 	@benchmark DT2($boolean_indicator($img), $tfm; output=$output)
-# end
 
 # ╔═╡ d733ef61-d519-4944-be51-d217b7dc43b6
 md"""
@@ -362,6 +323,25 @@ function transform!(img::AbstractMatrix, tfm::SquaredEuclidean; output=zeros(siz
 	return output
 end
 
+# ╔═╡ 8a9f34af-21ad-4aaa-a068-c790d30512e1
+md"""
+### 3D
+"""
+
+# ╔═╡ 88fd35f6-2a7b-49c8-8b0b-05a6d19f704a
+function transform!(vol::AbstractArray, tfm::SquaredEuclidean;
+output=zeros(size(vol)), v=ones(Int32, size(vol)), z=ones(size(vol)))
+	for k in axes(vol, 3)
+	    @views transform!(vol[:, :, k], tfm; output=output[:, :, k], v=fill!(v[:, :, k], 1), z=fill!(z[:, :, k], 1))
+	end
+	for i in axes(vol, 1)
+		for j in axes(vol, 2)
+	    	@views transform(output[i, j, :], tfm; output=output[i, j, :], v=fill!(v[i, j, :], 1), z=fill!(z[i, j, :], 1))
+		end
+	end
+	return output
+end
+
 # ╔═╡ d12a9fdf-dcd7-4791-b2f3-33b0a8ea3c04
 let
 	img = [
@@ -394,51 +374,59 @@ let
 	@benchmark transform!($boolean_indicator($img), $tfm; output=$output, v=$v, z=$z)
 end
 
-# ╔═╡ 8a9f34af-21ad-4aaa-a068-c790d30512e1
-md"""
-### 3D
-"""
-
-# ╔═╡ 88fd35f6-2a7b-49c8-8b0b-05a6d19f704a
-# function transform!(vol::AbstractArray, tfm::SquaredEuclidean;
-# output=zeros(size(vol)), v=ones(Int32, size(vol)), z=ones(size(vol)))
-# 	for k in axes(vol, 3)
-# 	    @views transform!(boolean_indicator(vol[:, :, k]), tfm; output=output[:, :, k], v=fill!(v[:, :, k], 1), z=fill!(z[:, :, k], 1))
-# 	end
-# 	for i in axes(vol, 1)
-# 		for j in axes(vol, 2)
-# 	    	@views transform(output[i, j, :], tfm; output=output[i, j, :], v=v[i, j, :], z=z[i, j, :])
-# 		end
-# 	end
-# 	return output
-# end
-
 # ╔═╡ 7563048a-450c-485d-b7e2-3ea5921310a7
-# let
-# 	img = [
-# 		0 0 0 0 0 0 0 0 0 0 0
-# 		0 0 0 0 0 0 0 0 0 0 0
-# 		0 0 0 0 0 0 0 0	0 0 0
-# 		0 0 0 1 1 1 0 0 0 0 0
-# 		0 0 1 0 0 1 0 0 0 0 0
-# 		0 0 1 0 0 1 1 1 0 0 0
-# 		0 0 1 0 0 0 0 1 0 0 0
-# 		0 0 1 0 0 0 0 1 0 0 0
-# 		0 0 0 1 1 1 1 0 0 0 0	
-# 		0 0 0 0 0 0 0 0 0 0 0	
-# 		0 0 0 0 0 0 0 0 0 0 0
-# 	]
-# 	img_inv = @. ifelse(img == 0, 1, 0)
-# 	vol = cat(img, img_inv, dims=3)
-# 	container2 = []
-# 	for i in 1:10
-# 		push!(container2, vol)
-# 	end
-# 	vol_inv = cat(container2..., dims=3)
-# 	output, v, z = zeros(size(vol_inv)), ones(Int32, size(vol_inv)), ones(size(vol_inv))
-# 	tfm = SquaredEuclidean()
-# 	test = transform!(boolean_indicator(vol_inv), tfm; output=output, v=v, z=z)
-# end
+let
+	img = [
+		0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0	0 0 0
+		0 0 0 1 1 1 0 0 0 0 0
+		0 0 1 0 0 1 0 0 0 0 0
+		0 0 1 0 0 1 1 1 0 0 0
+		0 0 1 0 0 0 0 1 0 0 0
+		0 0 1 0 0 0 0 1 0 0 0
+		0 0 0 1 1 1 1 0 0 0 0	
+		0 0 0 0 0 0 0 0 0 0 0	
+		0 0 0 0 0 0 0 0 0 0 0
+	]
+	img_inv = @. ifelse(img == 0, 1, 0)
+	vol = cat(img, img_inv, dims=3)
+	container2 = []
+	for i in 1:10
+		push!(container2, vol)
+	end
+	vol_inv = cat(container2..., dims=3)
+	output, v, z = zeros(size(vol_inv)), ones(Int32, size(vol_inv)), ones(size(vol_inv))
+	tfm = SquaredEuclidean()
+	test = transform!(boolean_indicator(vol_inv), tfm; output=output, v=v, z=z)
+end
+
+# ╔═╡ 426f3168-8c81-43d3-9ee3-875b94a946fb
+let
+	img = [
+		0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0	0 0 0
+		0 0 0 1 1 1 0 0 0 0 0
+		0 0 1 0 0 1 0 0 0 0 0
+		0 0 1 0 0 1 1 1 0 0 0
+		0 0 1 0 0 0 0 1 0 0 0
+		0 0 1 0 0 0 0 1 0 0 0
+		0 0 0 1 1 1 1 0 0 0 0	
+		0 0 0 0 0 0 0 0 0 0 0	
+		0 0 0 0 0 0 0 0 0 0 0
+	]
+	img_inv = @. ifelse(img == 0, 1, 0)
+	vol = cat(img, img_inv, dims=3)
+	container2 = []
+	for i in 1:10
+		push!(container2, vol)
+	end
+	vol_inv = cat(container2..., dims=3)
+	output, v, z = zeros(size(vol_inv)), ones(Int32, size(vol_inv)), ones(size(vol_inv))
+	tfm = SquaredEuclidean()
+	@benchmark transform!($boolean_indicator($vol_inv), $tfm; output=$output, v=$v, z=$z)
+end
 
 # ╔═╡ Cell order:
 # ╠═5c271c90-0d29-11ed-0f2f-5d1c923a6a3d
@@ -454,14 +442,11 @@ md"""
 # ╠═abd91126-4258-4047-8b20-ccc73d5128d3
 # ╟─e0363a94-6efd-493a-bc1c-5c0111094dad
 # ╠═c4011956-c903-4191-b1a2-a3315c05c761
-# ╟─15e1cb37-7717-425c-8028-2375998f491f
 # ╟─1d0dd515-a341-4f22-9b64-e671534d3167
 # ╠═a1c564e0-5edc-43fa-975f-bc7103e9c518
 # ╠═ce3dff0a-589a-482d-8aca-51ba504c7396
 # ╠═3974b7ff-9c85-4b2b-86cb-1907b018f209
 # ╠═f47f5ba9-effd-468f-9ec4-eea9438c30fb
-# ╟─3a8c65ab-fe56-4679-b25e-cf115829e59d
-# ╟─ab548a68-e5bc-4f28-a7a9-b5840a056fe8
 # ╟─d733ef61-d519-4944-be51-d217b7dc43b6
 # ╠═eb7483cd-a12b-4787-b495-6225cd18cba0
 # ╟─3f0c266c-da61-4ba7-a7fb-7dc171df19f9
@@ -476,3 +461,4 @@ md"""
 # ╟─8a9f34af-21ad-4aaa-a068-c790d30512e1
 # ╠═88fd35f6-2a7b-49c8-8b0b-05a6d19f704a
 # ╠═7563048a-450c-485d-b7e2-3ea5921310a7
+# ╠═426f3168-8c81-43d3-9ee3-875b94a946fb
