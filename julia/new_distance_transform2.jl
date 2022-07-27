@@ -49,11 +49,6 @@ md"""
 """
 
 # ╔═╡ e5b89de2-64de-42d1-92d8-001a7e7d1bff
-"""
-    function _DT1(input, output, i, j)
-
-Helper function for 1-D Wenbo distance transform `transform(f::AbstractVector, tfm::Wenbo)`
-"""
 function _DT1(output, i, j)
 	if (i==-1 && j==-1)
 		i=1
@@ -88,11 +83,6 @@ function _DT1(output, i, j)
 end
 
 # ╔═╡ e5435c7d-5f4d-4698-936f-3ae9906fa9df
-"""
-    transform(f, tfm::Wenbo; output=zeros(length(f)), pointerA=1, pointerB=1)
-
-Assume length(f)>0. This is a one pass algorithm. Time complexity=O(n). Space complexity=O(1)
-"""
 function transform(f::AbstractVector, tfm::Wenbo; output=zeros(length(f)), pointerA=1, pointerB=1)
 	while (pointerA<=length(f))
 		if(f[pointerA] == 0)
@@ -133,12 +123,6 @@ md"""
 """
 
 # ╔═╡ b3ba99a1-cbc9-484f-93a5-7a235905cbf8
-"""
-    _DT2(f; output=zeros(length(f)), pointerA=1)
-
-Helper function for 2-D Wenbo distance transform `transform(f::AbstractVector, tfm::Wenbo)`
-Computes the vertical operation.
-"""
 function _DT2(f; output=zeros(length(f)), pointerA=1)
 	while (pointerA<=length(f))
 		output[pointerA]=f[pointerA]
@@ -189,11 +173,6 @@ function _DT2(f; output=zeros(length(f)), pointerA=1)
 end
 
 # ╔═╡ 535c4318-d29e-4640-9105-66b16d13bf88
-"""
-    transform(img::AbstractMatrix, tfm::Wenbo; output=zeros(size(img)), pointerA=1, pointerB=1)
-
-2-D Wenbo Distance Transform.
-"""
 function transform(img::AbstractMatrix, tfm::Wenbo; output=zeros(size(img)), pointerA=1, pointerB=1)
 	# This is a worst case = O(n^3) implementation
 	for i in axes(img, 1)
@@ -206,7 +185,6 @@ function transform(img::AbstractMatrix, tfm::Wenbo; output=zeros(size(img)), poi
 	return output
 end
 
-
 # ╔═╡ fdc77c42-616a-4822-af8c-1f02bbd8b4a4
 md"""
 ### Tests
@@ -218,11 +196,6 @@ md"""
 """
 
 # ╔═╡ f5ff25be-94d2-4e97-bb4d-df36abb4c0a8
-"""
-    transform(f::AbstractArray, tfm::Wenbo; D=zeros(size(f)), pointerA=1, pointerB=1)
-
-3-D Wenbo Distance Transform.
-"""
 function transform(f::AbstractArray, tfm::Wenbo; output=zeros(size(f)), pointerA=1, pointerB=1)
 	for i in axes(f, 3)
 	    output[:, :, i] = transform(f[:, :, i], Wenbo(); output=output[:, :, i], pointerA=pointerA, pointerB=pointerB)
