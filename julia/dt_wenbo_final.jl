@@ -10,7 +10,6 @@ begin
 	using Pkg
 	Pkg.activate("/Users/wenboli/Desktop/ssd/dependency")
 	Pkg.Registry.update()
-	Pkg.add("ImageMorphology")
 end
 
 # ╔═╡ b05b4228-fc30-4a74-8a99-f9b8d53aff83
@@ -23,7 +22,9 @@ begin
 	using ColorTypes
 	using ActiveContours
 	using Printf
+	using FLoops
 	using ImageMorphology
+	using LoopVectorization
 end
 
 # ╔═╡ 45c7f27a-b43c-4781-918a-51aebd273014
@@ -31,6 +32,20 @@ TableOfContents()
 
 # ╔═╡ 45b90a66-956a-4b35-9e88-7621fd5c9c1a
 boolean_indicator(f) = @. ifelse(f == 0, 1f10, 0f0)
+
+# ╔═╡ 2d1b3771-0158-44ed-b47c-f091622c17af
+function boolean_indicator(img::BitArray)
+	f = similar(img, Float32)
+	@turbo for i in CartesianIndices(f)
+           f[i] = img[i] ? 0f0 : 1f10
+    end
+	return f
+end
+
+# ╔═╡ 0e4d3711-f29b-4833-8a3e-a91e4375eec0
+md"""
+## Multi-Thded and Nonmulti-Thded
+"""
 
 # ╔═╡ e75c9e76-3634-4bde-abb8-5b4827eb089e
 md"""
@@ -103,6 +118,11 @@ begin
 			pointerA=pointerB
 		end
 	end
+	function DT1Wenbo(f)
+		f = boolean_indicator(f)
+		DT1Wenbo!(f)
+		return f
+	end
 end
 
 # ╔═╡ 2d02a6fd-7a23-4790-b8da-7b7150482a85
@@ -118,7 +138,7 @@ begin
 		end
 		idx = 0
 		while(rightf>1)
-			rightf/=10
+			rightf  /=10
 			idx+=1 
 		end
 		return -leftD-idx/10-rightf/10
@@ -178,13 +198,27 @@ begin
 			f[i] = floor(abs(f[i]))
 		end
 	end
-	function DT2Wenbo!(f)
-		for i = 1:size(f, 1)
+	function DT2WenboA!(f)
+		for i in axes(f, 1)
 			DT1Wenbo!(@view(f[i, :]))
 		end
-		for i = 1:size(f, 2)
-			DT2Helper!(@view(f[:, i]))
+		for i in axes(f, 2)
+			DT2Helper!(@view(f[:,i]))
 		end
+	end
+	function DT2WenboB!(f)
+		Threads.@threads for i in axes(f, 1)
+			DT1Wenbo!(@view(f[i, :]))
+		end
+		Threads.@threads for i in axes(f, 2)
+			DT2Helper!(@view(f[:,i]))
+		end
+	end
+	function DT2Wenbo(f)
+		f = boolean_indicator(f)
+		DT2tf! = length(f) > 2700 && Threads.nthreads()>1 ?  DT2WenboB! : DT2WenboA!
+		DT2tf!(f)
+		return f
 	end
 end
 
@@ -193,51 +227,29 @@ md"""
 ## 3D
 """
 
-# ╔═╡ 0e4d3711-f29b-4833-8a3e-a91e4375eec0
-md"""
-## Multi-Thded
-"""
-
-# ╔═╡ 9a0d9463-0002-4d0e-a368-3d7bba542e3d
-nthreads = Threads.nthreads()
-
-# ╔═╡ fb595c55-2995-462f-8a7f-982022370bd9
-md"""
-### 2D
-"""
-
-# ╔═╡ ae9df0c7-3dd4-4e11-8440-acba1faeb61b
-function DT2Wenbo!(f, nthreads)
-	Threads.@threads for i = 1:size(f, 1)
-		DT1Wenbo!(@view(f[i, :]))
-	end
-	Threads.@threads for i = 1:size(f, 2)
-		DT2Helper!(@view(f[:, i]))
-	end
-end
-
 # ╔═╡ 3ce8b2a0-21ba-4b37-8560-60b22b8772a9
-function DT3Wenbo!(f)
-	for i = 1:size(f, 3)
-	    DT2Wenbo!(@view(f[:, :, i]))
+begin
+	function DT3WenboA!(f)
+		for i in axes(f, 3)
+		    DT2WenboA!(@view(f[:, :, i]))
+		end
+		for i in CartesianIndices(f[:,:,1])
+			DT2Helper!(@view(f[i, :]))
+		end
+	end 
+	function DT3WenboB!(f)
+		Threads.@threads for i in axes(f, 3)
+		    DT2WenboB!(@view(f[:, :, i]))
+		end
+		Threads.@threads for i in CartesianIndices(f[:,:,1])
+			DT2Helper!(@view(f[i, :]))
+		end
 	end
-	for i in CartesianIndices(f[:,:,1])
-		DT2Helper!(@view(f[i, :]))
-	end
-end 
-
-# ╔═╡ 36a60c88-2c32-4d21-80c3-ce965a49438b
-md"""
-### 3D
-"""
-
-# ╔═╡ fb1ac75c-a2a7-4537-93a1-a036a8044a5b
-function DT3Wenbo!(f, nthreads)
-	Threads.@threads for i = 1:size(f, 3)
-	    DT2Wenbo!(@view(f[:, :, i]))
-	end
-	Threads.@threads for i in CartesianIndices(f[:,:,1])
-		DT2Helper!(@view(f[i, :]))
+	function DT3Wenbo(f)
+		f = boolean_indicator(f)
+		DT3tf! = length(f) > 2700 && Threads.nthreads()>1 ?  DT3WenboB! : DT3WenboA!
+		DT3tf!(f)
+		return f
 	end
 end
 
@@ -254,9 +266,16 @@ euclideanImageMorphology(img) = distance_transform(feature_transform(Bool.(img))
 
 # ╔═╡ c4f655be-8b8d-44c1-869a-50a8aabb36bb
 begin
-	img1D = rand([0, 1], 1000);
-	img2D = rand([0, 1], 1000, 1000);
-	img3D = rand([0, 1], 1000, 1000, 150);
+	img1D = rand([0, 1], 200)
+	img2D = rand([0, 1], 200, 400)
+	img3D = rand([0, 1], 200, 400, 600)
+	img2D4k = rand([0, 1], 3840, 2160)
+	img1Df = Bool.(rand([0, 1], 200))
+	img2Df = Bool.(rand([0, 1], 200, 800))
+	img3Df = Bool.(rand([0, 1], 200, 400, 600))
+	img2D4kf = Bool.(rand([0, 1], 3840, 2160))
+	img2DSmallf = Bool.(rand([0, 1], 50, 50))
+	img2D4krf = Bool.(rand([0, 1], 2160, 3840))
 	"Test inputs created."
 end
 
@@ -267,25 +286,23 @@ md"""
 
 # ╔═╡ 9fb81dce-10cc-4eee-80ba-3e98c4671c3f
 let
-	rslt1 = euclideanImageMorphology(img1D);
+	rslt1 = euclideanImageMorphology(img1Df);
 	rslt1 .^ 2
-	rslt2 = boolean_indicator(img1D)
-	DT1Wenbo!(rslt2)
-	
+	rslt2 = DT1Wenbo(img1Df)
 	for i in CartesianIndices(rslt1)
 		if rslt1[i] - rslt2[i] != 0.0
 			"failed"
 			break
 		end
 	end
-	"1D: rslt1 is the same as rslt2"
+	"1D: Test Passed!"
 end
 
 # ╔═╡ c935ea04-1905-4aff-98ea-1ce3afe0e53b
-@benchmark DT1Wenbo!($boolean_indicator($img1D))
+@benchmark DT1Wenbo($img1Df)
 
 # ╔═╡ 685c72e3-24bc-4f3a-9dbb-d4c1d70d8166
-@benchmark euclideanImageMorphology(img1D)
+@benchmark euclideanImageMorphology($img1Df)
 
 # ╔═╡ d0c0ebdf-ff7b-4604-8c9a-acc77bc2cee0
 md"""
@@ -294,10 +311,9 @@ md"""
 
 # ╔═╡ c12b2514-bd9e-466c-a796-f7a2dd772891
 let
-	rslt1 = euclideanImageMorphology(img2D);
+	rslt1 = euclideanImageMorphology(img2Df);
 	rslt1 .^ 2
-	rslt2 = boolean_indicator(img2D)
-	DT2Wenbo!(rslt2)
+	rslt2 = DT2Wenbo(img2Df)
 	
 	for i in CartesianIndices(rslt1)
 		if rslt1[i] - rslt2[i] != 0.0
@@ -305,17 +321,14 @@ let
 			break
 		end
 	end
-	"2D: rslt1 is the same as rslt2"
+	"2D: Test Passed!"
 end
 
-# ╔═╡ 085444e7-733f-487e-9e1a-700898c3abd8
-@benchmark DT2Wenbo!($boolean_indicator($img2D))
-
 # ╔═╡ 026f5171-5206-4beb-abd9-cb8b27402e2a
-@benchmark DT2Wenbo!($boolean_indicator($img2D), nthreads)
+@benchmark DT2Wenbo($img2Df)
 
 # ╔═╡ 994460cf-cba5-4a8f-8018-da5aa63c3b97
-@benchmark euclideanImageMorphology(img2D)
+@benchmark euclideanImageMorphology($img2Df)
 
 # ╔═╡ d0f6676f-ecd9-4a8d-8f23-0ae656dd84dc
 md"""
@@ -324,10 +337,12 @@ md"""
 
 # ╔═╡ 20a72ac8-d547-432c-b979-878f5caecfe2
 let
-	rslt1 = euclideanImageMorphology(img3D);
+	n = 200
+	f = Bool.(rand([0, 1], n, n, n))
+	rslt1 = euclideanImageMorphology(f);
 	rslt1 .^ 2
-	rslt2 = boolean_indicator(img3D)
-	DT3Wenbo!(rslt2)
+	rslt2 = DT3Wenbo(f)
+	
 	
 	for i in CartesianIndices(rslt1)
 		if rslt1[i] - rslt2[i] != 0.0
@@ -335,35 +350,28 @@ let
 			break
 		end
 	end
-	"3D: rslt1 is the same as rslt2"
+	"3D: Test Passed!"
 end
 
-# ╔═╡ 1a1ac0f2-dc5b-43b8-8628-0454588dc8cd
-@benchmark DT3Wenbo!($boolean_indicator($img3D))
-
 # ╔═╡ d3d0d39f-381e-4e0b-a0e7-10441cba9956
-@benchmark DT3Wenbo!($boolean_indicator($img3D), nthreads)
+@benchmark DT3Wenbo($img3Df)
 
 # ╔═╡ a149cb4c-ec20-40db-a6d6-02bb8bca4eb7
-@benchmark euclideanImageMorphology(img3D)
+@benchmark euclideanImageMorphology($img3Df)
 
 # ╔═╡ Cell order:
 # ╟─aec0d43c-16e0-4092-b81e-6dddbe41d3db
 # ╟─b05b4228-fc30-4a74-8a99-f9b8d53aff83
 # ╟─45c7f27a-b43c-4781-918a-51aebd273014
 # ╟─45b90a66-956a-4b35-9e88-7621fd5c9c1a
+# ╟─2d1b3771-0158-44ed-b47c-f091622c17af
+# ╟─0e4d3711-f29b-4833-8a3e-a91e4375eec0
 # ╟─e75c9e76-3634-4bde-abb8-5b4827eb089e
 # ╟─93de6d70-46ff-414f-9185-72975b252cbe
 # ╟─2d02a6fd-7a23-4790-b8da-7b7150482a85
 # ╟─0509a408-2dbc-483f-bd5f-b9832268845a
 # ╟─71072c67-6584-4fc7-ad4d-b3d362333562
 # ╟─3ce8b2a0-21ba-4b37-8560-60b22b8772a9
-# ╟─0e4d3711-f29b-4833-8a3e-a91e4375eec0
-# ╟─9a0d9463-0002-4d0e-a368-3d7bba542e3d
-# ╟─fb595c55-2995-462f-8a7f-982022370bd9
-# ╟─ae9df0c7-3dd4-4e11-8440-acba1faeb61b
-# ╟─36a60c88-2c32-4d21-80c3-ce965a49438b
-# ╟─fb1ac75c-a2a7-4537-93a1-a036a8044a5b
 # ╟─8f46b1a3-09e4-44b8-8589-d8aa7fe381d1
 # ╟─14964c1d-32ef-48f0-a30c-5ad3d1faa34e
 # ╟─ac93baef-cd5f-4c4d-bd18-4d234e9b5883
@@ -374,11 +382,9 @@ end
 # ╠═685c72e3-24bc-4f3a-9dbb-d4c1d70d8166
 # ╟─d0c0ebdf-ff7b-4604-8c9a-acc77bc2cee0
 # ╟─c12b2514-bd9e-466c-a796-f7a2dd772891
-# ╠═085444e7-733f-487e-9e1a-700898c3abd8
 # ╠═026f5171-5206-4beb-abd9-cb8b27402e2a
 # ╠═994460cf-cba5-4a8f-8018-da5aa63c3b97
 # ╟─d0f6676f-ecd9-4a8d-8f23-0ae656dd84dc
 # ╟─20a72ac8-d547-432c-b979-878f5caecfe2
-# ╠═1a1ac0f2-dc5b-43b8-8628-0454588dc8cd
 # ╠═d3d0d39f-381e-4e0b-a0e7-10441cba9956
 # ╠═a149cb4c-ec20-40db-a6d6-02bb8bca4eb7
